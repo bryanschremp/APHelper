@@ -1046,38 +1046,38 @@
     {
         param
         (
-        [Parameter(Mandatory = $True, 
-            Position=1, 
-            ValueFromPipeline = $True, 
-            ValueFromPipelineByPropertyName = $True)]
-            [Alias('Service')]
-            [string]$ServiceName,
-        [Parameter(Mandatory = $False, 
-            ValueFromPipeline = $True, 
-            ValueFromPipelineByPropertyName = $True, 
-            ParameterSetName = 'Machine')]
-            [Alias('Machine')]
-            [string]$MachineName = $env:COMPUTERNAME,
-        [Parameter(Mandatory = $True , 
-            ValueFromPipeline = $True, 
-            ValueFromPipelineByPropertyName = $True, 
-            ParameterSetName = 'Machinefunction')]
-            [string]$Machinefunction,
-        [Parameter(Mandatory = $True , 
-            ValueFromPipeline = $True, 
-            ValueFromPipelineByPropertyName = $True, 
-            ParameterSetName = 'Machinefunction')]
-            [Alias('Delay')]
-            [int]$DelaySeconds,
-        [Parameter(Mandatory = $False, 
-            ValueFromPipeline = $True, 
-            ValueFromPipelineByPropertyName = $True)]
-            [switch]$ForceRestart,
-        [Parameter(Mandatory = $False, 
-            ValueFromPipeline = $True, 
-            ValueFromPipelineByPropertyName = $True, 
-            ParameterSetName = 'Machinefunction')]
-            [string]$Environment = $envName
+            [Parameter(Mandatory = $True,
+                Position = 1,
+                ValueFromPipeline = $True,
+                ValueFromPipelineByPropertyName = $True)]
+                [Alias('Service')]
+                [string]$ServiceName,
+            [Parameter(Mandatory = $False,
+                ValueFromPipeline = $True,
+                ValueFromPipelineByPropertyName = $True,
+                ParameterSetName = 'Machine')]
+                [Alias('Machine')]
+                [string]$MachineName = $env:COMPUTERNAME,
+            [Parameter(Mandatory = $False,
+                ValueFromPipeline = $True,
+                ValueFromPipelineByPropertyName = $True,
+                ParameterSetName = 'Machinefunction')]
+                [string]$Machinefunction,
+            [Parameter(Mandatory = $True,
+                ValueFromPipeline = $True,
+                ValueFromPipelineByPropertyName = $True,
+                ParameterSetName = 'Machinefunction')]
+                [Alias('Delay')]
+                [int]$DelaySeconds,
+            [Parameter(Mandatory = $False,
+                ValueFromPipeline = $True,
+                ValueFromPipelineByPropertyName = $True)]
+                [switch]$ForceRestart,
+            [Parameter(Mandatory = $False,
+                ValueFromPipeline = $True,
+                ValueFromPipelineByPropertyName = $True,
+                ParameterSetName = 'Machinefunction')]
+                [string]$Environment = $envName
         )
 
         # Get location of svcmgrclient.exe
@@ -1114,7 +1114,7 @@
             Write-Host ('Attempting to restart {0} on {1} ({2} of {3} machines)' -f $ServiceName, $machine, $i, $machines.count)
             
             # Call svcmgrclient
-            .(Join-Path $APToolsPath svcmgrclient.exe) -s $machine -c ('stopservice -s {0} {1}' -f $ServiceName, $time) 2>&1>$null
+            .(Join-Path $APToolsPath svcmgrclient.exe) -s $machine -c "stopservice -s $ServiceName $time" 2>&1>$null
 
             if ($Machinefunction)
             {
@@ -1238,15 +1238,15 @@
 
         if ($scaleUnits -or $scaleUnit -eq 0)
         {
-            Write-Host ("ScaleUnits to be processed: {0}" -f [string]::Join(", ",$scaleUnits))
-            Write-Host ("DontWaitForServiceRestart before proceeding to next machine in same scale unit: {0}" -f $DontWaitForServiceToRestart)
-            Write-Host ("MinMachineHealthyPercent before moving to next scale unit: {0}" -f $MinMachineHealthyPercent)
-            Write-Host ("ScaleUnitDelayInSeconds between scale units AFTER machines are healthy: {0}" -f $ScaleUnitDelayInSeconds)
-            Write-Host ("MachineDelayInSeconds between machines: {0}" -f $MachineDelayInSeconds)
+            Write-Host ('ScaleUnits to be processed: {0}' -f [string]::Join(', ',$scaleUnits))
+            Write-Host ('DontWaitForServiceRestart before proceeding to next machine in same scale unit: {0}' -f $DontWaitForServiceToRestart)
+            Write-Host ('MinMachineHealthyPercent before moving to next scale unit: {0}' -f $MinMachineHealthyPercent)
+            Write-Host ('ScaleUnitDelayInSeconds between scale units AFTER machines are healthy: {0}' -f $ScaleUnitDelayInSeconds)
+            Write-Host ('MachineDelayInSeconds between machines: {0}' -f $MachineDelayInSeconds)
         }
         else
         {
-            Write-Error ("No scale units found to process for {0}\{1}." -f $environment,$Machinefunction)
+            Write-Error ('No scale units found to process for {0}\{1}.' -f $environment,$Machinefunction)
             Return
         }
 
@@ -1259,30 +1259,30 @@
             if ($MachineFilter.GetType().IsArray)
             {
                 # Do nothing this is what we want
-                Write-Host "MachineFilter appears to be an array of machines."
+                Write-Host 'MachineFilter appears to be an array of machines.'
             }
             elseif ((Test-Path $MachineFilter))
             {
-                Write-Host ("Getting list of machines to filter from the file: {0}" -f {$MachineFilter})
+                Write-Host ('Getting list of machines to filter from the file: {0}' -f {$MachineFilter})
                 $MachineFilter = gc $MachineFilter | where {$_}
             }
-            elseif (($MachineFilter.GetType().IsString) -and $MachineFilter -match ";|,")
+            elseif (($MachineFilter.GetType().IsString) -and $MachineFilter -match ';|,')
             {
-                Write-Host ("Getting the list of machines to filter from the provided string.")
-                $MachineFilter = $MachineFilter.Split(",;") | where {$_}
+                Write-Host 'Getting the list of machines to filter from the provided string.'
+                $MachineFilter = $MachineFilter.Split(',;') | where {$_}
             }
             else
             {
-                Write-Error ("MachineFilter does not appear to be a valid array, file, or comma separated list of machines.")
-                Return
+                Write-Error 'MachineFilter does not appear to be a valid array, file, or comma separated list of machines.'
+                return
             }
 
             $MachineFilter = $MachineFilter.Trim() | where {$_} | select -Unique
 
-            Write-Host ("Number of unique machines to include found in MachineFilter: {0}" -f $MachineFilter.count)
+            Write-Host ('Number of unique machines to include found in MachineFilter: {0}' -f $MachineFilter.count)
         }
 
-        if ($ServiceName -match "\.")
+        if ($ServiceName -match '\.')
         {
             $message = @"
     The ServiceName specified {0} contains a period '.', you are probably not using the correct name for the service.
@@ -1292,7 +1292,7 @@
     Correct:   WLS_Colorado
     Incorrect: WLS_Colorado.BL__ship_onedrive_hotfix_19_047_0707_5004_20160808172718812
 "@
-            Write-Warning ($message -f $ServiceName )
+            Write-Warning ($message -f $ServiceName)
         }
 
         foreach ($su in $scaleUnits)
@@ -1301,18 +1301,18 @@
 
             if ($machines.count -eq 0)
             {
-                Write-Error ("No machines found in specified scale unit: {0}." -f $su)
+                Write-Error ('No machines found in specified scale unit: {0}.' -f $su)
                 return
             }
 
             if ($MachineFilter)
             {
                 $machines = $machines | foreach {if ($MachineFilter -contains $_.machine){$_}}
-                Write-Host ("Machines after applying MachineFilter: {0}" -f [string]::Join("; ", $machines.machine))
+                Write-Host ('Machines after applying MachineFilter: {0}' -f [string]::Join('; ', $machines.machine))
             }
 
-            Write-Host "`n`nStarting ScaleUnit: $su"
-            Write-Host ("Machine count: {0}" -f $machines.count)
+            Write-Host ('`n`nStarting ScaleUnit: {0}' -f $su)
+            Write-Host ('Machine count: {0}' -f $machines.count)
             $lastMachineName = ($machines | select -last 1).machine
 
             foreach ($machine in $machines)
@@ -1320,9 +1320,9 @@
                 $tryRestart = $true
 
                 $machineName = $machine.machine
-                Write-Host ("`nConnecting to {0} ..." -f $machineName)
+                Write-Host ('`nConnecting to {0} ...' -f $machineName)
 
-                $machineInfo = "" | Select Environment, Machinefunction, ScaleUnit, MachineName, ServiceName, MachineStatusStart, MachineStatusEnd, ServiceStatusStart, ServiceStatusEnd, RestartTime, Result
+                $machineInfo = '' | Select Environment, Machinefunction, ScaleUnit, MachineName, ServiceName, MachineStatusStart, MachineStatusEnd, ServiceStatusStart, ServiceStatusEnd, RestartTime, Result
                 $machineInfo.Environment = $Environment
                 $machineInfo.Machinefunction = $Machinefunction
                 $machineInfo.ScaleUnit = $su
@@ -1336,34 +1336,34 @@
                 }
                 else
                 {
-                    Write-Warning ("Could not connect to machine {0}." -f $machineName)
-                    $machineInfo.Result = "Offline"
+                    Write-Warning ('Could not connect to machine {0}.' -f $machineName)
+                    $machineInfo.Result = 'Offline'
                     $tryRestart = $false
                 }
 
-                if ($machineInfo.Result -ne "Offline")
+                if ($machineInfo.Result -ne 'Offline')
                 {
                     if (-not $service)
                     {
-                        Write-Warning ("Service {0} not found on {1}." -f $ServiceName, $machineName)
-                        $machineInfo.Result = "Service Not Found"
+                        Write-Warning ('Service {0} not found on {1}.' -f $ServiceName, $machineName)
+                        $machineInfo.Result = 'Service Not Found'
                         $tryRestart = $false
                     }
-                    elseif ($service.Status -eq "disabled")
+                    elseif ($service.Status -eq 'disabled')
                     {
-                        Write-Warning ("Service {0} disabled on {1}." -f $ServiceName, $machineName)
-                        $machineInfo.Result = "Service Disabled"
+                        Write-Warning ('Service {0} disabled on {1}.' -f $ServiceName, $machineName)
+                        $machineInfo.Result = 'Service Disabled'
                         $tryRestart = $false
                     }
-                    elseif (-not ($service.Status -eq "running"))
+                    elseif (-not ($service.Status -eq 'running'))
                     {
-                        Write-Warning ("Service {0} not running on {1}. Will try to start it." -f $ServiceName, $machineName)
+                        Write-Warning ('Service {0} not running on {1}. Will try to start it.' -f $ServiceName, $machineName)
                     }
 
                     if ($tryRestart)
                     {
                         $machineInfo.ServiceStatusStart = $service.Status
-                        Write-Host ("Restarting {0} on {1}..." -f $ServiceName, $machineName)
+                        Write-Host ('Restarting {0} on {1}...' -f $ServiceName, $machineName)
                         $machineInfo.RestartTime = Get-Date
                         Restart-APService -ServiceName $ServiceName -MachineName $machineName -ForceRestart
 
@@ -1371,20 +1371,20 @@
 
                         if (-not $DontWaitForServiceToRestart)
                         {
-                            Write-Host "Waiting for service to start." -NoNewline
-                            while ($service.status -ne "running" )
+                            Write-Host 'Waiting for service to start.' -NoNewline
+                            while ($service.status -ne 'running')
                             {
                                 start-sleep 5
-                                Write-Host "." -NoNewline
+                                Write-Host '.' -NoNewline
 
                                 $service = Get-APServiceStatus -ServiceName $ServiceName -MachineName $machineName
                             }
 
-                            $machineInfo.Result = "Service Restarted Successfully"
+                            $machineInfo.Result = 'Service Restarted Successfully'
                         }
                         else
                         {
-                            $machineInfo.Result = "Service Restart Called"
+                            $machineInfo.Result = 'Service Restart Called'
                         }
 
                         $machineInfo.ServiceStatusEnd = $service.status
@@ -1394,7 +1394,7 @@
 
                 if ($machineName -ne $lastMachineName)
                 {
-                    Write-Host "`nSleeping for $MachineDelayInSeconds seconds before next machine..."
+                    Write-Host ('`nSleeping for {0} seconds before next machine...' -f $MachineDelayInSeconds)
                     Start-Sleep $MachineDelayInSeconds
                 }
 
@@ -1403,13 +1403,13 @@
 
             if ($su -ne $lastScaleUnit)
             {
-                Write-Host " `nSleeping for $ScaleUnitDelayInSeconds seconds before next scale unit..."
+                Write-Host ('`nSleeping for {0} seconds before next scale unit...' -f $ScaleUnitDelayInSeconds)
                 Start-Sleep $ScaleUnitDelayInSeconds
             }
 
             if ($MinMachineHealthyPercent -ne 0)
             {
-                $suStatus = @(get-apmachineinfo -machinefunction $Machinefunction -Environment $Environment | where {$_.row -eq $su})
+                $suStatus = @(Get-APMachineInfo -Machinefunction $Machinefunction -Environment $Environment | where {$_.row -eq $su})
                 $healthyCount = @($suStatus | where {$_.status -eq "H"}).count
                 $HealthyPercent = [math]::Floor([Decimal]($healthyCount / $suStatus.count * 100))
 
@@ -1419,7 +1419,7 @@
                     {
                         Write-Host ('Waiting for machines in scale unit {0} to get healthy. Currently {1}% of minimum {2}%.' -f $su, $healthyPercent, $MinMachineHealthyPercent)
                         Start-Sleep 15
-                        $suStatus = @(get-apmachineinfo -machinefunction $Machinefunction -Environment $Environment | where {$_.row -eq $su})
+                        $suStatus = @(Get-APMachineInfo -Machinefunction $Machinefunction -Environment $Environment | where {$_.row -eq $su})
                         $healthyCount = @($suStatus | where {$_.status -eq "H"}).count
                         $HealthyPercent = [math]::Floor([Decimal]($healthyCount / $suStatus.count * 100))
                     }
